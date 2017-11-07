@@ -22,6 +22,7 @@ class SmallEnemy(pygame.sprite.Sprite):
                                        randint(-5*self.height,0)
         self.speed=2
         self.active=True
+        self.mask=pygame.mask.from_surface(self.image)
 
         
     def move(self):
@@ -57,6 +58,7 @@ class MidEnemy(pygame.sprite.Sprite):
                                        randint(-10*self.height,-self.height)
         self.speed=1
         self.active=True
+        self.mask=pygame.mask.from_surface(self.image)
 
         
     def move(self):
@@ -95,6 +97,7 @@ class BigEnemy(pygame.sprite.Sprite):
                                        randint(-15*self.height,-5*self.height)
         self.speed=1
         self.active=True
+        self.mask=pygame.mask.from_surface(self.image1)
 
         
     def move(self):

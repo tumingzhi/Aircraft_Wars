@@ -97,10 +97,10 @@ def main():
     clock=pygame.time.Clock()
 
     #中弹图片索引
-    e1_destory_index=0
-    e2_destory_index=0
-    e3_destory_index=0
-    my_destory_index=0
+    e1_destroy_index=0
+    e2_destroy_index=0
+    e3_destroy_index=0
+    my_destroy_index=0
 
     #切换图片
     switch_image=True
@@ -145,7 +145,7 @@ def main():
                 #毁灭
                 enemy3_down_sound.play()
                 if not(delay%3):
-                    screen.blit(each.destroy_images[e3_destory_index],each.rect)
+                    screen.blit(each.destroy_images[e3_destroy_index],each.rect)
                     e3_destroy_index=(e3_destroy_index+1)%6
                     if e3_destroy_index==0:
                         each.reset()
@@ -159,7 +159,7 @@ def main():
                 #毁灭
                 enemy2_down_sound.play()
                 if not(delay%3):
-                    screen.blit(each.destroy_images[e2_destory_index],each.rect)
+                    screen.blit(each.destroy_images[e2_destroy_index],each.rect)
                     e2_destroy_index=(e2_destroy_index+1)%4
                     if e2_destroy_index==0:
                         each.reset()
@@ -172,10 +172,18 @@ def main():
                 #毁灭
                 enemy1_down_sound.play()
                 if not(delay%3):
-                    screen.blit(each.destroy_images[e1_destory_index],each.rect)
+                    screen.blit(each.destroy_images[e1_destroy_index],each.rect)
                     e1_destroy_index=(e1_destroy_index+1)%4
                     if e1_destroy_index==0:
                         each.reset()
+
+
+        #检测我方飞机是否被撞
+        enemies_down=pygame.sprite.spritecollide(me,enemies,False,pygame.sprite.collide_mask)
+        if enemies_down:
+           # me.active=False
+            for e in enemies_down:
+                e.active=False
                 
 
         #绘制我方飞机
@@ -191,7 +199,8 @@ def main():
                 screen.blit(me.destroy_images[me_destory_index],me.rect)
                 me_destroy_index=(me_destroy_index+1)%4
                 if me_destroy_index==0:
-                    each.reset()
+                    print('Game Over')
+                    running=False
         #切换图片
         if not (delay%5):
             switch_image=not switch_image

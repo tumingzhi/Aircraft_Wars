@@ -21,6 +21,7 @@ class MyPlane(pygame.sprite.Sprite):
                          self.height-self.rect.height-60
         self.speed=10
         self.active=True
+        self.mask=pygame.mask.from_surface(self.image1)
 
         
     #上
