@@ -111,6 +111,13 @@ def main():
     BULLET1_NUM=4
     for i in range(BULLET1_NUM):
         bullet1.append(bullet.Bullet1(me.rect.midtop))
+    #生成超级子弹
+    bullet2=[]
+    bullet2_index=0
+    BULLET2_NUM=8
+    for i in range(BULLET2_NUM//2):
+        bullet2.append(bullet.Bullet2((me.rect.centerx-33,me.rect.centery)))
+        bullet2.append(bullet.Bullet2((me.rect.centerx+30,me.rect.centery)))
         
 
     clock=pygame.time.Clock()
@@ -119,7 +126,7 @@ def main():
     e1_destroy_index=0
     e2_destroy_index=0
     e3_destroy_index=0
-    my_destroy_index=0
+    me_destroy_index=0
 
     #统计得分
     score=0
@@ -144,7 +151,26 @@ def main():
     bomb_font=pygame.font.Font('font/font.ttf',48)
     bomb_num=3
 
+    #每一段时间出现补给 supply
+    bullet_supply=supply.Bullet_Supply(bg_size)
+    bomb_supply=supply.Bomb_Supply(bg_size)
+    SUPPLY_TIME=USEREVENT
+    pygame.time.set_timer(SUPPLY_TIME,10*1000)
+
+    #超级子弹定时器
+    DOUBLE_BULLET_TIME=USEREVENT+1
     
+    #标志是否使用超级子弹
+    is_double_bullet=False
+
+    #无敌时间定时器
+    INVINCIBLE_TIME=USEREVENT+2
+
+    #生命
+    life_image=pygame.image.load('images/life.png').convert_alpha()
+    life_rect=life_image.get_rect()
+    life_num=3
+      
     #切换图片
     switch_image=True
 
@@ -162,6 +188,14 @@ def main():
             elif event.type==MOUSEBUTTONDOWN:
                 if event.button==1 and paused_rect.collidepoint(event.pos):
                     paused=not paused
+                    if paused:
+                        pygame.time.set_timer(SUPPLY_TIME,0)
+                        pygame.mixer.music.pause()
+                        pygame.mixer.pause()
+                    else:
+                        pygame.time.set_timer(SUPPLY_TIME,30*1000)
+                        pygame.mixer.music.unpause()
+                        pygame.mixer.unpause()
             elif event.type==MOUSEMOTION:
                 if paused_rect.collidepoint(event.pos):
                     if paused:
@@ -182,6 +216,21 @@ def main():
                         for each in enemies:
                             if each.rect.bottom>0:
                                 each.active=False
+            elif event.type==SUPPLY_TIME:
+                supply_sound.play()
+                if choice([True,False]):
+                    bomb_supply.reset()
+                else:
+                    bullet_supply.reset()
+
+            elif event.type==DOUBLE_BULLET_TIME:
+                is_double_bullet=False
+                pygame.time.set_timer(DOUBLE_BULLET_TIME,0)
+
+            elif event.type==INVINCIBLE_TIME:
+                me.invincible=False
+                pygame.time.set_timer(INVINCIBLE_TIME,0)
+            
 
         #根据用户得分增加难度
         if level==1 and score>50000:
@@ -229,7 +278,7 @@ def main():
         #绘制背景background   绘制代码不要随便变动代码位置  背景置底
         screen.blit(background,(0,0))
 
-        if not paused:
+        if life_num and not paused:
 
             #检测键盘操作
             key_pressed=pygame.key.get_pressed()
@@ -241,15 +290,43 @@ def main():
                 me.moveDown()
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 me.moveRight()
-            
 
+            #绘制全屏炸弹补给 检测是否获得
+            if bomb_supply.active:
+                bomb_supply.move()
+                screen.blit(bomb_supply.image,bomb_supply.rect)
+                if pygame.sprite.collide_mask(bomb_supply,me):
+                    get_bomb_sound.play()
+                    if bomb_num<3:
+                        bomb_num+=1
+                        bomb_supply.active=False
+
+            #绘制超级子弹补给 检测是否获得
+            if bullet_supply.active:
+                bullet_supply.move()
+                screen.blit(bullet_supply.image,bullet_supply.rect)
+                if pygame.sprite.collide_mask(bullet_supply,me):
+                    get_bullet_sound.play()
+                    #发射超级子弹
+                    is_double_bullet=True
+                    pygame.time.set_timer(DOUBLE_BULLET_TIME,18*1000)
+                    bullet_supply.active=False
+            
 
             #发射子弹
             if not(delay%10):
-                bullet1[bullet1_index].reset(me.rect.midtop)
-                bullet1_index=(bullet1_index+1)%BULLET1_NUM
+                bullet_sound.play()
+                if is_double_bullet:
+                    bullets=bullet2
+                    bullets[bullet2_index].reset((me.rect.centerx-33,me.rect.centery))
+                    bullets[bullet2_index+1].reset((me.rect.centerx+30,me.rect.centery))
+                    bullet2_index=(bullet2_index+2)%BULLET2_NUM
+                else:
+                    bullets=bullet1
+                    bullets[bullet1_index].reset(me.rect.midtop)
+                    bullet1_index=(bullet1_index+1)%BULLET1_NUM
             #检测子弹是否击中敌方
-            for b in bullet1:
+            for b in bullets:
                 if b.active:
                     b.move()
                     screen.blit(b.image,b.rect)
@@ -388,8 +465,8 @@ def main():
 
             #检测我方飞机是否被撞
             enemies_down=pygame.sprite.spritecollide(me,enemies,False,pygame.sprite.collide_mask)
-            if enemies_down:
-               # me.active=False
+            if enemies_down and not me.invincible:
+                me.active=False
                 for e in enemies_down:
                     e.active=False
                     
@@ -405,11 +482,12 @@ def main():
                 if not(delay%3):
                     if me_destroy_index==0:
                         me_down_sound.play()
-                    screen.blit(me.destroy_images[me_destory_index],me.rect)
+                    screen.blit(me.destroy_images[me_destroy_index],me.rect)
                     me_destroy_index=(me_destroy_index+1)%4
                     if me_destroy_index==0:
-                        print('Game Over')
-                        running=False
+                        life_num-=1
+                        me.reset()
+                        pygame.time.set_timer(INVINCIBLE_TIME,5*1000)
 
             #绘制剩余bomb数量
             bomb_text=bomb_font.render('x %d'%bomb_num,True,WHITE)
@@ -417,7 +495,19 @@ def main():
             screen.blit(bomb_image,(10,height-10-bomb_rect.height))
             screen.blit(bomb_text,(20+bomb_rect.width,height-5-text_rect.height))
                         
+            #绘制剩余生命数量
+            if life_num:
+                for i in range(life_num):
+                    screen.blit(life_image,\
+                                (width-10-(i+1)*life_rect.width,\
+                                 height-10-life_rect.height))
 
+        #绘制游戏结束画面
+        elif life_num==0:
+            print('game over')
+            
+
+        #绘制得分   
         score_text=score_font.render('Score:%s' %str(score),True,WHITE)
         screen.blit(score_text,(10,5))
         
@@ -431,11 +521,7 @@ def main():
         delay-=1
         if not delay:
             delay=100
-
-        
-
             
-
 
         pygame.display.flip()
 

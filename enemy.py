@@ -123,6 +123,7 @@ class BigEnemy(pygame.sprite.Sprite):
 
     def reset(self):
         self.active=True
+        self.invincible=True
         self.energy=BigEnemy.energy
         self.rect.left,self.rect.top=\
                                        randint(0,self.width-self.rect.width),\
