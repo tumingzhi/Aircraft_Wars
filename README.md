@@ -1,8 +1,5 @@
-版本v1.0  2017.11.3
+版本v1.1  2017.11.6
 
-素材加入
+为me enemy1 enemy2 enemy3 添加毁灭过程图片及相应代码
 
-导入背景音乐bgm
-各种特效声音
-
-添加背景background
+添加判断me enemy1 enemy2 enemy3是否存活的代码
