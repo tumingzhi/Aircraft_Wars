@@ -83,6 +83,10 @@ def add_big_enemies(group1,group2,num):
         group1.add(e3)
         group2.add(e3)
 
+def inc_speed(target,inc):
+    for each in target:
+        each.speed+=inc
+
 def main():
     pygame.mixer.music.play(-1)
 
@@ -130,6 +134,16 @@ def main():
     paused_rect=pause_nor_image.get_rect()
     paused_rect.left,paused_rect.top=width-paused_rect.width-10,10
     paused_image=pause_nor_image
+
+    #设置难度
+    level=1
+
+    #全屏炸弹
+    bomb_image=pygame.image.load('images/bomb.png').convert_alpha()
+    bomb_rect=bomb_image.get_rect()
+    bomb_font=pygame.font.Font('font/font.ttf',48)
+    bomb_num=3
+
     
     #切换图片
     switch_image=True
@@ -159,6 +173,58 @@ def main():
                         paused_image=resume_nor_image
                     else:
                         paused_image=pause_nor_image
+
+            elif event.type==KEYDOWN:
+                if event.key==K_SPACE:
+                    if bomb_num:
+                        bomb_num-=1
+                        bomb_sound.play()
+                        for each in enemies:
+                            if each.rect.bottom>0:
+                                each.active=False
+
+        #根据用户得分增加难度
+        if level==1 and score>50000:
+            level=2
+            upgrade_sound.play()
+            #增加3/2/1架 small_enemy/mid_enemy/big_enemy
+            add_small_enemies(small_enemies,enemies,3)
+            add_mid_enemies(mid_enemies,enemies,2)
+            add_big_enemies(big_enemies,enemies,1)
+            #提升敌机速度
+            inc_speed(small_enemies,0.5)
+        elif level==2 and score>300000:
+            level=3
+            upgrade_sound.play()
+            #增加4/2/1架 small_enemy/mid_enemy/big_enemy
+            add_small_enemies(small_enemies,enemies,4)
+            add_mid_enemies(mid_enemies,enemies,2)
+            add_big_enemies(big_enemies,enemies,1)
+            #提升敌机速度
+            inc_speed(small_enemies,0.5)
+            inc_speed(mid_enemies,0.5)
+        elif level==3 and score>600000:
+            level=4
+            upgrade_sound.play()
+            #增加4/3/1架 small_enemy/mid_enemy/big_enemy
+            add_small_enemies(small_enemies,enemies,4)
+            add_mid_enemies(mid_enemies,enemies,3)
+            add_big_enemies(big_enemies,enemies,1)
+            #提升敌机速度
+            inc_speed(small_enemies,0.5)
+            inc_speed(mid_enemies,0.5)
+            inc_speed(big_enemies,0.25)
+        elif level==4 and score>1000000:
+            level=5
+            upgrade_sound.play()
+            #增加5/3/2架 small_enemy/mid_enemy/big_enemy
+            add_small_enemies(small_enemies,enemies,5)
+            add_mid_enemies(mid_enemies,enemies,3)
+            add_big_enemies(big_enemies,enemies,2)
+            #提升敌机速度
+            inc_speed(small_enemies,0.5)
+            inc_speed(mid_enemies,0.5)
+            inc_speed(big_enemies,0.5)
 
         #绘制背景background   绘制代码不要随便变动代码位置  背景置底
         screen.blit(background,(0,0))
@@ -243,7 +309,7 @@ def main():
                         e3_destroy_index=(e3_destroy_index+1)%6
                         if e3_destroy_index==0:
                             enemy3_flying_sound.stop()
-                            score+=10000
+                            score+=50000
                             each.reset()
                         
             #绘制敌方飞机 中型机
@@ -283,7 +349,7 @@ def main():
                         screen.blit(each.destroy_images[e2_destroy_index],each.rect)
                         e2_destroy_index=(e2_destroy_index+1)%4
                         if e2_destroy_index==0:
-                            score+=6000
+                            score+=20000
                             each.reset()
             #绘制敌方飞机 小型机
             for each in small_enemies:
@@ -344,6 +410,13 @@ def main():
                     if me_destroy_index==0:
                         print('Game Over')
                         running=False
+
+            #绘制剩余bomb数量
+            bomb_text=bomb_font.render('x %d'%bomb_num,True,WHITE)
+            text_rect=bomb_text.get_rect()
+            screen.blit(bomb_image,(10,height-10-bomb_rect.height))
+            screen.blit(bomb_text,(20+bomb_rect.width,height-5-text_rect.height))
+                        
 
         score_text=score_font.render('Score:%s' %str(score),True,WHITE)
         screen.blit(score_text,(10,5))
