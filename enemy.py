@@ -26,6 +26,7 @@ class SmallEnemy(pygame.sprite.Sprite):
         self.mask=pygame.mask.from_surface(self.image)
         self.energy=SmallEnemy.energy
 
+
         
     def move(self):
         if self.rect.top<self.height:
@@ -54,6 +55,7 @@ class MidEnemy(pygame.sprite.Sprite):
             pygame.image.load('images/enemy2_down3.png').convert_alpha(),\
             pygame.image.load('images/enemy2_down4.png').convert_alpha() \
         ])
+        self.image_hit=pygame.image.load('images/enemy2_hit.png').convert_alpha()
 
         self.rect=self.image.get_rect()
         self.width,self.height=bg_size[0],bg_size[1]
@@ -65,6 +67,7 @@ class MidEnemy(pygame.sprite.Sprite):
         self.active=True
         self.mask=pygame.mask.from_surface(self.image)
         self.energy=MidEnemy.energy
+        self.hit=False
 
         
     def move(self):
@@ -98,6 +101,7 @@ class BigEnemy(pygame.sprite.Sprite):
             pygame.image.load('images/enemy3_down5.png').convert_alpha(),\
             pygame.image.load('images/enemy3_down6.png').convert_alpha() \
         ])
+        self.image_hit=pygame.image.load('images/enemy3_hit.png').convert_alpha()
         self.rect=self.image1.get_rect()
         self.width,self.height=bg_size[0],bg_size[1]
         #初始位置
@@ -108,6 +112,7 @@ class BigEnemy(pygame.sprite.Sprite):
         self.active=True
         self.mask=pygame.mask.from_surface(self.image1)
         self.energy=BigEnemy.energy
+        self.hit=False
 
         
     def move(self):
