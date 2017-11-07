@@ -18,6 +18,12 @@ pygame.display.set_caption('飞机大战')
 #背景图片  不透明不需要加alpha
 background=pygame.image.load('images/background.png').convert()
 
+BLACK=(0,0,0)
+GREEN=(0,255,0)
+RED=(255,0,0)
+YELLOW=(255,255,0)
+
+
 #载入游戏音乐
 pygame.mixer.music.load('sound/game_music.ogg')#bgm
 pygame.mixer.music.set_volume(0.2)#音乐大小
@@ -94,6 +100,14 @@ def main():
     big_enemies=pygame.sprite.Group()
     add_big_enemies(big_enemies,enemies,2)
 
+    #生成普通子弹
+    bullet1=[]
+    bullet1_index=0
+    BULLET1_NUM=4
+    for i in range(BULLET1_NUM):
+        bullet1.append(bullet.Bullet1(me.rect.midtop))
+        
+
     clock=pygame.time.Clock()
 
     #中弹图片索引
@@ -130,6 +144,26 @@ def main():
         #绘制背景background   绘制代码不要随便变动代码位置  背景置底
         screen.blit(background,(0,0))
 
+        #发射子弹
+        if not(delay%10):
+            bullet1[bullet1_index].reset(me.rect.midtop)
+            bullet1_index=(bullet1_index+1)%BULLET1_NUM
+        #检测子弹是否击中敌方
+        for b in bullet1:
+            if b.active:
+                b.move()
+                screen.blit(b.image,b.rect)
+                enemy_hit=pygame.sprite.spritecollide(b,enemies,False,pygame.sprite.collide_mask)
+                if enemy_hit:
+                    b.active=False
+                    for e in enemy_hit:
+                        if e in mid_enemies or e in big_enemies:
+                            e.energy-=1
+                            if e.energy==0:
+                                e.active=False
+                        else:
+                            e.active=False
+            
         #绘制敌方飞机 大型机
         for each in big_enemies:
             if each.active:
@@ -138,16 +172,37 @@ def main():
                     screen.blit(each.image1,each.rect)
                 else:
                     screen.blit(each.image2,each.rect)
+                #绘制血槽
+                pygame.draw.line(screen,BLACK,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.right,each.rect.top-5),\
+                                 2)
+                #当生命大于50%显示绿色 50%-26%显示黄色 25%及以下显示红色
+                energy_remain=each.energy/enemy.BigEnemy.energy
+                if energy_remain>0.5:
+                    energy_color=GREEN
+                elif energy_remain>0.25:
+                    energy_color=YELLOW
+                else:
+                    energy_color=RED
+                pygame.draw.line(screen,energy_color,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.left+each.rect.width*energy_remain,\
+                                  each.rect.top-5),\
+                                 2)
+            
                 #即将出现在画面中播放音效
-                if each.rect.bottom>-50:
-                    enemy3_flying_sound.play()
+                if each.rect.bottom==-50:
+                    enemy3_flying_sound.play(-1)
             else:
                 #毁灭
-                enemy3_down_sound.play()
                 if not(delay%3):
+                    if e3_destroy_index==0:
+                        enemy3_down_sound.play()
                     screen.blit(each.destroy_images[e3_destroy_index],each.rect)
                     e3_destroy_index=(e3_destroy_index+1)%6
                     if e3_destroy_index==0:
+                        enemy3_flying_sound.stop()
                         each.reset()
                     
         #绘制敌方飞机 中型机
@@ -155,10 +210,30 @@ def main():
             if each.active:
                 each.move()
                 screen.blit(each.image,each.rect)
+                #绘制血槽
+                pygame.draw.line(screen,BLACK,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.right,each.rect.top-5),\
+                                 2)
+                #当生命大于50%显示绿色 50%-26%显示黄色 25%及以下显示红色
+                energy_remain=each.energy/enemy.MidEnemy.energy
+                if energy_remain>0.5:
+                    energy_color=GREEN
+                elif energy_remain>0.25:
+                    energy_color=YELLOW
+                else:
+                    energy_color=RED
+                pygame.draw.line(screen,energy_color,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.left+each.rect.width*energy_remain,\
+                                  each.rect.top-5),\
+                                 2)
+                
             else:
                 #毁灭
-                enemy2_down_sound.play()
                 if not(delay%3):
+                    if e2_destroy_index==0:
+                        enemy2_down_sound.play()
                     screen.blit(each.destroy_images[e2_destroy_index],each.rect)
                     e2_destroy_index=(e2_destroy_index+1)%4
                     if e2_destroy_index==0:
@@ -168,10 +243,29 @@ def main():
             if each.active:
                 each.move()
                 screen.blit(each.image,each.rect)
+                #绘制血槽
+                pygame.draw.line(screen,BLACK,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.right,each.rect.top-5),\
+                                 2)
+                #当生命大于50%显示绿色 50%-26%显示黄色 25%及以下显示红色
+                energy_remain=each.energy/enemy.SmallEnemy.energy
+                if energy_remain>0.5:
+                    energy_color=GREEN
+                elif energy_remain>0.25:
+                    energy_color=YELLOW
+                else:
+                    energy_color=RED
+                pygame.draw.line(screen,energy_color,\
+                                 (each.rect.left,each.rect.top-5),\
+                                 (each.rect.left+each.rect.width*energy_remain,\
+                                  each.rect.top-5),\
+                                 2)
             else:
                 #毁灭
-                enemy1_down_sound.play()
                 if not(delay%3):
+                    if e1_destroy_index==0:
+                        enemy1_down_sound.play()
                     screen.blit(each.destroy_images[e1_destroy_index],each.rect)
                     e1_destroy_index=(e1_destroy_index+1)%4
                     if e1_destroy_index==0:
@@ -194,8 +288,9 @@ def main():
                 screen.blit(me.image2,me.rect)
         else:
             #毁灭
-            me_down_sound.play()
             if not(delay%3):
+                if me_destroy_index==0:
+                    me_down_sound.play()
                 screen.blit(me.destroy_images[me_destory_index],me.rect)
                 me_destroy_index=(me_destroy_index+1)%4
                 if me_destroy_index==0:

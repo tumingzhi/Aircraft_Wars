@@ -2,6 +2,7 @@ import pygame
 from random import *
 
 class SmallEnemy(pygame.sprite.Sprite):
+    energy=1
     def __init__(self,bg_size):
         pygame.sprite.Sprite.__init__(self)
 
@@ -23,6 +24,7 @@ class SmallEnemy(pygame.sprite.Sprite):
         self.speed=2
         self.active=True
         self.mask=pygame.mask.from_surface(self.image)
+        self.energy=SmallEnemy.energy
 
         
     def move(self):
@@ -33,11 +35,14 @@ class SmallEnemy(pygame.sprite.Sprite):
 
     def reset(self):
         self.active=True
+        self.energy=SmallEnemy.energy
         self.rect.left,self.rect.top=\
                                        randint(0,self.width-self.rect.width),\
                                        randint(-5*self.height,0)
 
 class MidEnemy(pygame.sprite.Sprite):
+    energy=8
+    
     def __init__(self,bg_size):
         pygame.sprite.Sprite.__init__(self)
 
@@ -59,6 +64,7 @@ class MidEnemy(pygame.sprite.Sprite):
         self.speed=1
         self.active=True
         self.mask=pygame.mask.from_surface(self.image)
+        self.energy=MidEnemy.energy
 
         
     def move(self):
@@ -69,12 +75,15 @@ class MidEnemy(pygame.sprite.Sprite):
 
     def reset(self):
         self.active=True
+        self.energy=MidEnemy.energy
         self.rect.left,self.rect.top=\
                                        randint(0,self.width-self.rect.width),\
                                        randint(-5*self.height,0)
 
 
 class BigEnemy(pygame.sprite.Sprite):
+    energy=20
+    
     def __init__(self,bg_size):
         pygame.sprite.Sprite.__init__(self)
 
@@ -98,6 +107,7 @@ class BigEnemy(pygame.sprite.Sprite):
         self.speed=1
         self.active=True
         self.mask=pygame.mask.from_surface(self.image1)
+        self.energy=BigEnemy.energy
 
         
     def move(self):
@@ -108,6 +118,8 @@ class BigEnemy(pygame.sprite.Sprite):
 
     def reset(self):
         self.active=True
+        self.energy=BigEnemy.energy
         self.rect.left,self.rect.top=\
                                        randint(0,self.width-self.rect.width),\
                                        randint(-5*self.height,0)
+        
