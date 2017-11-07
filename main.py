@@ -151,11 +151,12 @@ def main():
     bomb_font=pygame.font.Font('font/font.ttf',48)
     bomb_num=3
 
+
     #每一段时间出现补给 supply
     bullet_supply=supply.Bullet_Supply(bg_size)
     bomb_supply=supply.Bomb_Supply(bg_size)
     SUPPLY_TIME=USEREVENT
-    pygame.time.set_timer(SUPPLY_TIME,3*1000)
+    pygame.time.set_timer(SUPPLY_TIME,8*1000)
 
     #超级子弹定时器
     DOUBLE_BULLET_TIME=USEREVENT+1
@@ -203,7 +204,7 @@ def main():
                         pygame.mixer.music.pause()
                         pygame.mixer.pause()
                     else:
-                        pygame.time.set_timer(SUPPLY_TIME,30*1000)
+                        pygame.time.set_timer(SUPPLY_TIME,8*1000)
                         pygame.mixer.music.unpause()
                         pygame.mixer.unpause()
             elif event.type==MOUSEMOTION:
@@ -226,6 +227,8 @@ def main():
                         for each in enemies:
                             if each.rect.bottom>0:
                                 each.active=False
+                        me.invi()
+                        pygame.time.set_timer(INVINCIBLE_TIME,1*1000)
             elif event.type==SUPPLY_TIME:
                 supply_sound.play()
                 if choice([True,False]):
@@ -243,7 +246,7 @@ def main():
             
 
         #根据用户得分增加难度
-        if level==1 and score>50000:
+        if level==1 and score>=50000:
             level=2
             upgrade_sound.play()
             #增加3/2/1架 small_enemy/mid_enemy/big_enemy
@@ -252,7 +255,7 @@ def main():
             add_big_enemies(big_enemies,enemies,1)
             #提升敌机速度
             inc_speed(small_enemies,0.5)
-        elif level==2 and score>300000:
+        elif level==2 and score>=300000:
             level=3
             upgrade_sound.play()
             #增加4/2/1架 small_enemy/mid_enemy/big_enemy
@@ -262,7 +265,7 @@ def main():
             #提升敌机速度
             inc_speed(small_enemies,0.5)
             inc_speed(mid_enemies,0.5)
-        elif level==3 and score>600000:
+        elif level==3 and score>=600000:
             level=4
             upgrade_sound.play()
             #增加4/3/1架 small_enemy/mid_enemy/big_enemy
@@ -273,7 +276,7 @@ def main():
             inc_speed(small_enemies,0.5)
             inc_speed(mid_enemies,0.5)
             inc_speed(big_enemies,0.25)
-        elif level==4 and score>1000000:
+        elif level==4 and score>=1000000:
             level=5
             upgrade_sound.play()
             #增加5/3/2架 small_enemy/mid_enemy/big_enemy
@@ -306,10 +309,11 @@ def main():
                 screen.blit(bomb_supply.image,bomb_supply.rect)
                 if pygame.sprite.collide_mask(bomb_supply,me):
                     get_bomb_sound.play()
-                    if bomb_num<3:
+                    if bomb_num<5:
                         bomb_num+=1
                         bomb_supply.active=False
-
+			
+			
             #绘制超级子弹补给 检测是否获得
             if bullet_supply.active:
                 bullet_supply.move()
@@ -496,7 +500,7 @@ def main():
                     if me_destroy_index==0:
                         life_num-=1
                         me.reset()
-                        pygame.time.set_timer(INVINCIBLE_TIME,5*1000)
+                        pygame.time.set_timer(INVINCIBLE_TIME,3*1000)
 
             #绘制剩余bomb数量
             bomb_text=bomb_font.render('x %d'%bomb_num,True,WHITE)

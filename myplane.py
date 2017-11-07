@@ -57,4 +57,5 @@ class MyPlane(pygame.sprite.Sprite):
                          self.height-self.rect.height-60
         #重生无敌
         self.invincible=True
-        
+    def invi(self):
+        self.invincible=True
